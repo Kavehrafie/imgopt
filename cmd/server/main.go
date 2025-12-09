@@ -17,7 +17,22 @@ import (
 func main() {
 	cfg := config.Load()
 
-	store, err := storage.NewB2Storage(context.Background(), cfg)
+	log.Printf("DEBUG: Storage Type configured as: '%s'", cfg.StorageType)
+
+	var store storage.Provider
+	var err error
+
+	switch cfg.StorageType {
+	case "bunny":
+		log.Println("DEBUG: Initializing Bunny.net storage...")
+		store, err = storage.NewBunnyStorage(cfg)
+	case "b2":
+		log.Println("DEBUG: Initializing Backblaze B2 storage...")
+		store, err = storage.NewB2Storage(context.Background(), cfg)
+	default:
+		log.Fatalf("Unknown storage type: %s", cfg.StorageType)
+	}
+
 	if err != nil {
 		log.Fatalf("Failed to initialize storage: %v", err)
 	}
@@ -81,6 +96,8 @@ func main() {
 			http.Error(w, "Missing 'key' parameter", http.StatusBadRequest)
 			return
 		}
+
+		log.Printf("DEBUG: Processing request for key: '%s' (width: %d, height: %d, fit: %s, crop: %s)", key, width, height, fit, crop)
 
 		ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
 		defer cancel()

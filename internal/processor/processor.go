@@ -25,6 +25,19 @@ func (s *Service) Resize(r io.Reader, width, height int, fit, crop string, forma
 
 	newImage := bimg.NewImage(buffer)
 
+	// Check if image format is supported
+	if newImage.Type() == "unknown" {
+		if len(buffer) == 0 {
+			return nil, fmt.Errorf("image buffer is empty")
+		}
+		// Debug: return first 100 bytes as string to see if it's HTML or error message
+		preview := string(buffer)
+		if len(preview) > 100 {
+			preview = preview[:100]
+		}
+		return nil, fmt.Errorf("unknown image format. Buffer preview: %q", preview)
+	}
+
 	options := bimg.Options{
 		Width:  width,
 		Height: height,
@@ -73,7 +86,7 @@ func (s *Service) Resize(r io.Reader, width, height int, fit, crop string, forma
 
 	processed, err := newImage.Process(options)
 	if err != nil {
-		return nil, fmt.Errorf("failed to process image: %w", err)
+		return nil, fmt.Errorf("failed to process image: %w. Detected Type: %s", err, newImage.Type())
 	}
 
 	return processed, nil
