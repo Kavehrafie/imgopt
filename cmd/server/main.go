@@ -15,7 +15,7 @@ import (
 	"github.com/Kavehrafie.com/imgopt/internal/storage"
 )
 
-const Version = "1.0.1-bunny-sdk-update"
+const Version = "1.0.2"
 
 func main() {
 	cfg := config.Load()
@@ -59,8 +59,6 @@ func main() {
 		w.Header().Set("Content-Type", "text/plain")
 		fmt.Fprintf(w, "Version: %s\n", Version)
 		fmt.Fprintf(w, "Storage Type: %s\n", cfg.StorageType)
-		fmt.Fprintf(w, "Bunny Zone Name: %s\n", cfg.BunnyZoneName)
-		fmt.Fprintf(w, "Bunny Endpoint: %s\n", cfg.BunnyEndpoint)
 		fmt.Fprintf(w, "Request Path: %s\n", r.URL.Path)
 	})
 
