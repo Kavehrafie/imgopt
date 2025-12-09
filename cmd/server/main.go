@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -54,8 +55,18 @@ func main() {
 		w.Write([]byte(Version))
 	})
 
+	mux.HandleFunc("/debug", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/plain")
+		fmt.Fprintf(w, "Version: %s\n", Version)
+		fmt.Fprintf(w, "Storage Type: %s\n", cfg.StorageType)
+		fmt.Fprintf(w, "Bunny Zone Name: %s\n", cfg.BunnyZoneName)
+		fmt.Fprintf(w, "Bunny Endpoint: %s\n", cfg.BunnyEndpoint)
+		fmt.Fprintf(w, "Request Path: %s\n", r.URL.Path)
+	})
+
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/health" || r.URL.Path == "/version" {
+		log.Printf("DEBUG: Incoming Request: %s %s", r.Method, r.URL.Path)
+		if r.URL.Path == "/health" || r.URL.Path == "/version" || r.URL.Path == "/debug" {
 			// This should be handled by the specific handler, but just in case
 			return
 		}
