@@ -14,9 +14,12 @@ import (
 	"github.com/Kavehrafie.com/imgopt/internal/storage"
 )
 
+const Version = "1.0.1-bunny-sdk-update"
+
 func main() {
 	cfg := config.Load()
 
+	log.Printf("Starting imgopt version: %s", Version)
 	log.Printf("DEBUG: Storage Type configured as: '%s'", cfg.StorageType)
 
 	var store storage.Provider
@@ -46,8 +49,13 @@ func main() {
 		w.Write([]byte("OK"))
 	})
 
+	mux.HandleFunc("/version", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(Version))
+	})
+
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/health" {
+		if r.URL.Path == "/health" || r.URL.Path == "/version" {
 			// This should be handled by the specific handler, but just in case
 			return
 		}
